@@ -1,5 +1,5 @@
 provider "aws" {
-    region = "us-east-1"
+    region = "ap-south-1"
     
 }
 
@@ -8,4 +8,5 @@ resource "aws_instance" "Terraform" {
   instance_type = "t2.micro"
   key_name = "TFKEY"
   vpc_security_group_ids = ["sg-0e411a3455293c130"]
+}
   
