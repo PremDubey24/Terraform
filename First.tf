@@ -10,5 +10,5 @@ resource "aws_instance" "my-instance" {
       env = "dev"
       Name = "TF-Instance"
     }
-    vpc_security_group_ids = ["sg-0b86b0265bfc094fc"]
+    vpc_security_group_ids = ["sg-0b86b0265bfc094fc","sg-0b416e1d9b9a42f25"]
 }
