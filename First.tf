@@ -79,20 +79,5 @@ resource "aws_route_table" "private" {
 # Add route to private route table for NAT Gateway
 resource "aws_route" "private" {
   route_table_id         = aws_route_table.private.id
-  destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat.id
-}
-
-# Create security group for public subnet
-resource "aws_security_group" "public" {
-  vpc_id = aws_vpc.main.id
-
-  // Add rules as needed for inbound and outbound traffic
-}
-
-# Create security group for private subnet
-resource "aws_security_group" "private" {
-  vpc_id = aws_vpc.main.id
-
-  // Add rules as needed for inbound and outbound traffic
 }
