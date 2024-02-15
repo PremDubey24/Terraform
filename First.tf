@@ -68,16 +68,21 @@ resource "aws_eip" "nat" {
 # Create NAT Gateway
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public.id
+  subnet_id     = aws_subnet.private.id
 }
 
 # Create route table for private subnet
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
+  tags = {
+Name = "Private_RT"
+}
 }
 
 # Add route to private route table for NAT Gateway
 resource "aws_route" "private" {
   route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat.id
+
 }
