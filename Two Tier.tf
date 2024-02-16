@@ -149,7 +149,7 @@ resource "aws_instance" "public_instance" {
   instance_type = "t3.micro"
   subnet_id     = aws_subnet.public.id
   key_name      = "Ubuntu-1"
-  security_groups = aws_security_group.vpc_sg.id
+  security_groups = [aws_security_group.vpc_sg.id]
   user_data = <<-EOF
 #!/bin/bash
 sudo -i
@@ -177,7 +177,7 @@ resource "aws_instance" "private_instance" {
   instance_type = "t3.micro"
   subnet_id     = aws_subnet.private.id
   key_name      = "Ubuntu-1"
-  security_groups = aws_security_group.vpc_sg.id
+  security_groups = [aws_security_group.vpc_sg.id]
   user_data = <<-EOF
   #!/bin/bash
   sudo -i
