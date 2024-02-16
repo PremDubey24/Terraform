@@ -12,6 +12,54 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_security_group" "vpc_sg" {
+
+  vpc_id = aws_vpc.main.id
+
+  # Ingress rules (inbound traffic)
+  ingress {
+    description = "Allow SSH traffic from specific IP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  // Restrict this to specific IPs if possible
+  }
+
+  ingress {
+    description = "Allow SSH traffic from specific IP"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  // Restrict this to specific IPs if possible
+  }
+
+  ingress {
+    description = "Allow SSH traffic from specific IP"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  // Restrict this to specific IPs if possible
+  }
+
+  ingress {
+    description = "Allow HTTP traffic from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Egress rules (outbound traffic)
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
 # Create public subnet
 resource "aws_subnet" "public" {
   vpc_id            = aws_vpc.main.id
@@ -101,7 +149,7 @@ resource "aws_instance" "public_instance" {
   instance_type = "t3.micro"
   subnet_id     = aws_subnet.public.id
   key_name      = "Ubuntu-1"
-  vpc_security_group_ids = ["sg-0a0377f1628cd41a0","sg-0d30e7bbf307f4638"]
+  security_groups = aws_security_group.vpc_sg.id
   user_data = <<-EOF
 #!/bin/bash
 sudo -i
@@ -129,7 +177,7 @@ resource "aws_instance" "private_instance" {
   instance_type = "t3.micro"
   subnet_id     = aws_subnet.private.id
   key_name      = "Ubuntu-1"
-  vpc_security_group_ids = ["sg-0a0377f1628cd41a0","sg-0d30e7bbf307f4638"]
+  security_groups = aws_security_group.vpc_sg.id
   user_data = <<-EOF
   #!/bin/bash
   sudo -i
