@@ -77,7 +77,6 @@ resource "aws_nat_gateway" "nat" {
 # Create route table for private subnet
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
-
   tags = {
 Name = "Private_RT"
 }
@@ -94,4 +93,57 @@ resource "aws_route" "private" {
 resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private.id
   route_table_id = aws_route_table.private.id
+}
+
+# Create an instance for Public Subnet (Tomcat)
+resource "aws_instance" "public_instance" {
+  ami           = "ami-0014ce3e52359afbd" 
+  instance_type = "t3.micro"
+  subnet_id     = aws_subnet.public.id
+  key_name      = "Ubuntu-1"
+  security_groups = ["sg-0a0377f1628cd41a0"]
+  vpc_id = aws_vpc.main.id
+  user_data = <<-EOF
+#!/bin/bash
+sudo -i
+apt update
+apt install unzip -y
+apt install -y openjdk-17-jdk
+wget https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.98/bin/apache-tomcat-8.5.98.zip
+unzip apache-tomcat-8.5.98.zip -d /opt
+chmod 777 /opt/apache-tomcat-8.5.98/bin/catalina.sh
+wget https://s3-us-west-2.amazonaws.com/studentapi-cit/mysql-connector.jar
+cp mysql-connector.jar /opt/apache-tomcat-8.5.98/lib/
+wget https://s3-us-west-2.amazonaws.com/studentapi-cit/student.war
+cp student.war /opt/apache-tomcat-8.5.98/webapps/
+EOF
+
+  tags = {
+    env = "tomcat"
+    Name = "TOMCAT"
+  }
+}
+
+# Create an instance for Private Subnet (Mariadb)
+resource "aws_instance" "private_instance" {
+  ami           = "ami-0014ce3e52359afbd" 
+  instance_type = "t3.micro"
+  subnet_id     = aws_subnet.private.id
+  key_name      = "Ubuntu-1"
+  security_groups = ["sg-0a0377f1628cd41a0"]
+  vpc_id = aws_vpc.main.id
+  user_data = <<-EOF
+  #!/bin/bash
+  sudo -i
+  apt update
+  apt install -y openjdk-17-jdk
+  apt install mariadb-server -y
+  systemctl start mariadb
+  systemctl enable mariadb
+  EOF
+
+  tags = {
+    env = "Mariadb"
+    Name = "DB-Server"
+  }
 }
