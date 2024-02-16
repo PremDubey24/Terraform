@@ -102,7 +102,6 @@ resource "aws_instance" "public_instance" {
   subnet_id     = aws_subnet.public.id
   key_name      = "Ubuntu-1"
   security_groups = ["sg-0a0377f1628cd41a0"]
-  vpc_id = aws_vpc.main.id
   user_data = <<-EOF
 #!/bin/bash
 sudo -i
@@ -131,7 +130,6 @@ resource "aws_instance" "private_instance" {
   subnet_id     = aws_subnet.private.id
   key_name      = "Ubuntu-1"
   security_groups = ["sg-0a0377f1628cd41a0"]
-  vpc_id = aws_vpc.main.id
   user_data = <<-EOF
   #!/bin/bash
   sudo -i
