@@ -101,7 +101,7 @@ resource "aws_instance" "public_instance" {
   instance_type = "t3.micro"
   subnet_id     = aws_subnet.public.id
   key_name      = "Ubuntu-1"
-  vpc_security_group_ids = ["sg-0a0377f1628cd41a0","sg-0b86b0265bfc094fc"]
+  vpc_security_group_ids = ["sg-0a0377f1628cd41a0","sg-0d30e7bbf307f4638"]
   user_data = <<-EOF
 #!/bin/bash
 sudo -i
@@ -129,7 +129,7 @@ resource "aws_instance" "private_instance" {
   instance_type = "t3.micro"
   subnet_id     = aws_subnet.private.id
   key_name      = "Ubuntu-1"
-  vpc_security_group_ids = ["sg-0a0377f1628cd41a0","sg-0b86b0265bfc094fc"]
+  vpc_security_group_ids = ["sg-0a0377f1628cd41a0","sg-0d30e7bbf307f4638"]
   user_data = <<-EOF
   #!/bin/bash
   sudo -i
