@@ -116,7 +116,8 @@ resource "aws_eip" "nat" {
 # Create NAT Gateway
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.private.id
+  connectivity_type = "public"
+  subnet_id     = aws_subnet.public.id
   tags = {
     Name = "NAT"
   }
@@ -183,7 +184,7 @@ resource "aws_instance" "private_instance" {
   sudo -i
   apt update
   apt install -y openjdk-17-jdk
-  apt install mariadb-server -y
+  apt install mariadb-server-10.6 -y
   systemctl start mariadb
   systemctl enable mariadb
   EOF
