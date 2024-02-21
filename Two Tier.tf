@@ -144,6 +144,41 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
+# Define IAM policy for full RDS access
+resource "aws_iam_policy" "rds_full_access_policy" {
+  name        = "RDSFullAccessPolicy"
+  description = "Provides full access to RDS resources"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect   = "Allow",
+      Action   = "rds:*",
+      Resource = "*",
+    }]
+  })
+}
+
+# Create IAM role
+resource "aws_iam_role" "ec2_rds_role" {
+  name               = "EC2RDSRole"
+  assume_role_policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      },
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+# Attach policy to IAM role
+resource "aws_iam_role_policy_attachment" "rds_full_access_attachment" {
+  role       = aws_iam_role.ec2_rds_role.name
+  policy_arn = aws_iam_policy.rds_full_access_policy.arn
+}
+
 # Create an instance for Public Subnet (Tomcat)
 resource "aws_instance" "public_instance" {
   ami           = "ami-0014ce3e52359afbd" 
@@ -176,6 +211,7 @@ EOF
 resource "aws_instance" "private_instance" {
   ami           = "ami-0014ce3e52359afbd" 
   instance_type = "t3.micro"
+  iam_instance_profile = aws_iam_role.ec2_rds_role.name # Associate IAM role with EC2 instance
   subnet_id     = aws_subnet.private.id
   key_name      = "Ubuntu-1"
   security_groups = [aws_security_group.vpc_sg.id]
@@ -183,14 +219,34 @@ resource "aws_instance" "private_instance" {
   #!/bin/bash
   sudo -i
   apt update
-  apt install -y openjdk-17-jdk
   apt install mariadb-server-10.6 -y
   systemctl start mariadb
   systemctl enable mariadb
+  apt install -y openjdk-17-jdk
   EOF
 
   tags = {
     env = "Mariadb"
     Name = "DB-Server"
   }
+}
+
+# Create an RDS instance
+resource "aws_db_instance" "backend-rds" {
+  identifier                = "mariadb-db"
+  allocated_storage         = 20
+  storage_type              = "gp2"
+  engine                    = "mariadb"
+  engine_version            = "10.5.12"
+  instance_class            = "db.t2.micro"
+  name                      = "DB-Instance"
+  username                  = "admin"
+  password                  = "admin123"
+  publicly_accessible       = false
+  skip_final_snapshot       = true
+  backup_retention_period   = 7
+  multi_az                  = false
+  monitoring_interval       = 0
+  allow_major_version_upgrade = false
+  vpc_security_group_ids    = [aws_security_group.vpc_sg.id]
 }
