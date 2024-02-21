@@ -238,7 +238,7 @@ resource "aws_db_instance" "backend-rds" {
   storage_type              = "gp2"
   engine                    = "mariadb"
   engine_version            = "10.5.12"
-  instance_class            = "db.t2.micro"
+  instance_class            = "db.r5.large"
   username                  = "admin"
   password                  = "admin123"
   publicly_accessible       = false
