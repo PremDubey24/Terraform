@@ -175,7 +175,7 @@ resource "aws_iam_role" "ec2_rds_role" {
 
 # Attach policy to IAM role
 resource "aws_iam_role_policy_attachment" "rds_full_access_attachment" {
-  role       = aws_iam_role.ec2_rds_role
+  role       = "aws_iam_role.ec2_rds_role"
   policy_arn = aws_iam_policy.rds_full_access_policy.arn
 }
 
