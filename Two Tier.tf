@@ -145,39 +145,42 @@ resource "aws_route_table_association" "private" {
 }
 
 # Define IAM policy for full RDS access
-resource "aws_iam_policy" "rds_full_access_policy" {
-  name        = "RDSFullAccessPolicy"
-  description = "Provides full access to RDS resources"
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect   = "Allow",
-      Action   = "rds:*",
-      Resource = "*",
-    }]
-  })
+data "aws_iam_policy_document" "assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
 }
 
-# Create IAM role
-resource "aws_iam_role" "ec2_rds_role" {
-  name               = "EC2RDSRole"
-  assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
-    Statement = [{
-      Effect    = "Allow",
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      },
-      Action    = "sts:AssumeRole"
-    }]
-  })
+resource "aws_iam_role" "role" {
+  name               = "rds-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
-# Attach policy to IAM role
-resource "aws_iam_role_policy_attachment" "rds_full_access_attachment" {
-  role       = "aws_iam_role.ec2_rds_role"
-  policy_arn = aws_iam_policy.rds_full_access_policy.arn
+data "aws_iam_policy_document" "policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["rds:*"]  # Granting full access to RDS resources
+    resources = ["*"]
+  }
 }
+
+resource "aws_iam_policy" "rds-policy" {
+  name        = "rds-policy"
+  description = "A test policy granting full access to RDS resources"
+  policy      = data.aws_iam_policy_document.policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "RDS-attach" {
+  role       = aws_iam_role.role.name
+  policy_arn = aws_iam_policy.policy.arn
+}  
 
 # Create an instance for Public Subnet (Tomcat)
 resource "aws_instance" "public_instance" {
