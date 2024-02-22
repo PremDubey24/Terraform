@@ -143,45 +143,7 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private.id
   route_table_id = aws_route_table.private.id
 }
-
-# Define IAM policy for full RDS access
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
-}
-
-resource "aws_iam_role" "role" {
-  name               = "rds-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
-
-data "aws_iam_policy_document" "policy" {
-  statement {
-    effect    = "Allow"
-    actions   = ["rds:*"]  # Granting full access to RDS resources
-    resources = ["*"]
-  }
-}
-
-resource "aws_iam_policy" "rds-policy" {
-  name        = "rds-policy"
-  description = "A test policy granting full access to RDS resources"
-  policy      = data.aws_iam_policy_document.policy.json
-}
-
-resource "aws_iam_role_policy_attachment" "RDS-attach" {
-  role       = aws_iam_role.role.name
-  policy_arn = aws_iam_policy.policy.arn
-}  
-
+ 
 # Create an instance for Public Subnet (Tomcat)
 resource "aws_instance" "public_instance" {
   ami           = "ami-0014ce3e52359afbd" 
@@ -214,7 +176,6 @@ EOF
 resource "aws_instance" "private_instance" {
   ami           = "ami-0014ce3e52359afbd" 
   instance_type = "t3.micro"
-  iam_instance_profile = aws_iam_role_policy_attachment.RDS-attach.name # Associate IAM role with EC2 instance
   subnet_id     = aws_subnet.private.id
   key_name      = "Ubuntu-1"
   security_groups = [aws_security_group.vpc_sg.id]
