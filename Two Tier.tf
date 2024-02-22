@@ -197,18 +197,17 @@ resource "aws_instance" "private_instance" {
 
 # Create an RDS instance
 resource "aws_db_instance" "backend-rds" {
-  identifier                = "mariadb-db"
-  allocated_storage         = 20
-  storage_type              = "gp2"
-  engine                    = "mariadb"
-  instance_class            = "db.r5.large"
-  username                  = "admin"
-  password                  = "admin123"
-  publicly_accessible       = false
-  skip_final_snapshot       = true
-  backup_retention_period   = 7
-  multi_az                  = false
-  monitoring_interval       = 0
+  identifier                  = "mariadb-db"
+  allocated_storage           = 20
+  storage_type                = "gp2"
+  engine                      = "mariadb"
+  instance_class              = "db.r5.large"
+  username                    = "admin"
+  password                    = "admin123"
+  publicly_accessible         = false
+  skip_final_snapshot         = true
+  backup_retention_period     = 7
+  multi_az                    = false
+  monitoring_interval         = 0
   allow_major_version_upgrade = false
-  vpc_security_group_ids    = [aws_security_group.vpc_sg.id]
 }
