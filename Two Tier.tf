@@ -214,7 +214,7 @@ EOF
 resource "aws_instance" "private_instance" {
   ami           = "ami-0014ce3e52359afbd" 
   instance_type = "t3.micro"
-  iam_instance_profile = aws_iam_role.ec2_rds_role.name # Associate IAM role with EC2 instance
+  iam_instance_profile = aws_iam_role_policy_attachment.RDS-attach.name # Associate IAM role with EC2 instance
   subnet_id     = aws_subnet.private.id
   key_name      = "Ubuntu-1"
   security_groups = [aws_security_group.vpc_sg.id]
