@@ -143,7 +143,7 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private.id
   route_table_id = aws_route_table.private.id
 }
- 
+
 # Create an instance for Public Subnet (Tomcat)
 resource "aws_instance" "public_instance" {
   ami           = "ami-0014ce3e52359afbd" 

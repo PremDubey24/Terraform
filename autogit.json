@@ -1,0 +1,9 @@
+{
+    "runOnStart": true,
+    "updayeInterval": 5,
+    "logging" : true,
+    "silent": true,
+    "commitMessage": "--- Auto Git Commit ---",
+    "locale":"eu-north-1",
+    "timeZone": "Europe/Berlin"
+}
